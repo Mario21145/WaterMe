@@ -37,16 +37,13 @@ class PlantViewModel(application: Application): ViewModel() {
         plantName: String
     ) {
 
-        //TODO: create a Data instance with the plantName passed to it
         val inputData = Data.Builder().putString(WaterReminderWorker.nameKey, plantName).build()
 
-        // TODO: Generate a OneTimeWorkRequest with the passed in duration, time unit, and data instance
         val workRequest = OneTimeWorkRequestBuilder<WaterReminderWorker>()
             .setInitialDelay(duration, unit)
             .setInputData(inputData)
             .build()
 
-        // TODO: Enqueue the request as a unique work request
         WorkManager.getInstance().enqueueUniqueWork(
             "waterReminderWork",
             ExistingWorkPolicy.REPLACE,
