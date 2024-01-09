@@ -15,6 +15,7 @@
  */
 package com.example.waterme.model
 
+
 data class Plant(
     val name: String,
     val schedule: String,

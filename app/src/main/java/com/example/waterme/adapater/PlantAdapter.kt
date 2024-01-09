@@ -62,6 +62,8 @@ class PlantAdapter(private val longClickListener: PlantListener) :
         val plant = getItem(position)
         holder.bind(longClickListener, plant)
     }
+
+
 }
 
 class PlantListener(val longClickListener: (plant: Plant) -> Boolean) {

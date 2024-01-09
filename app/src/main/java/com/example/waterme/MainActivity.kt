@@ -16,6 +16,7 @@
 package com.example.waterme
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         val data = viewModel.plants
-        adapter.submitList(data)
+        Log.d("Data" , "${data.value}")
+//        adapter.submitList(data)
     }
 }

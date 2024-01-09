@@ -16,20 +16,40 @@
 package com.example.waterme.viewmodel
 
 import android.app.Application
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.waterme.data.DataSource
+import com.example.waterme.model.Plant
+import com.example.waterme.network.PlantApi
 import com.example.waterme.worker.WaterReminderWorker
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class PlantViewModel(application: Application): ViewModel() {
 
-    val plants = DataSource.plants
+
+    private val _plants = MutableLiveData<List<Plant>>().apply {
+        listOf<Plant>()
+    }
+    var plants : MutableLiveData<List<Plant>> = _plants
+
+    fun fetchPlants() {
+       viewModelScope.launch{
+           val plantsResult = PlantApi.retrofitService.getPlantList()
+           _plants.postValue(listOf(plantsResult))
+       }
+    }
+
+
+
+
 
     internal fun scheduleReminder(
         duration: Long,
