@@ -17,7 +17,7 @@
 <resources>
     <array
         name="water_schedule_array" >
-        <item>5 seconds</item>
+        <item>15 minutes</item>
         <item>1 day</item>
         <item>1 week</item>
         <item>1 month</item>

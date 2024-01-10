@@ -17,19 +17,21 @@ package com.example.waterme
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Switch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.waterme.adapater.PlantAdapter
-import com.example.waterme.adapater.PlantListener
-import com.example.waterme.model.Plant
+import com.example.waterme.repository.DataStore
+import com.example.waterme.repository.dataStore
 import com.example.waterme.ui.ReminderDialogFragment
 import com.example.waterme.viewmodel.PlantViewModel
 import com.example.waterme.viewmodel.PlantViewModelFactory
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,23 +39,30 @@ class MainActivity : AppCompatActivity() {
         PlantViewModelFactory(application)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val adapter = PlantAdapter(PlantListener { plant ->
-            val dialog = ReminderDialogFragment(plant.name)
-            dialog.show(supportFragmentManager, "WaterReminderDialogFragment")
-            true
-        })
+
+        lifecycleScope.launch{
+            Log.d("Data" , viewModel.dataStore.returnData())
+        }
+
+
+        val adapter = PlantAdapter(viewModel , viewModel.dataStore) { plant ->
+            runOnUiThread {
+                val dialog = ReminderDialogFragment(plant.name)
+                dialog.show(supportFragmentManager, "WaterReminderDialogFragment")
+            }
+        }
+
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
 
-        viewModel.plants.observe(this, Observer {
-            val data = viewModel.plants.value
-            adapter.submitList(data)
-        })
-
+        viewModel.plants.observe(this) { plants ->
+            adapter.setPlantsData(plants)
+        }
 
 
 

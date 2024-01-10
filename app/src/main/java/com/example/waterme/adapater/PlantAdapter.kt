@@ -1,71 +1,80 @@
-/*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.waterme.adapater
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Switch
+import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.waterme.databinding.ListItemBinding
+import coil.load
+import com.example.waterme.R
 import com.example.waterme.model.Plant
+import com.example.waterme.repository.DataStore
+import com.example.waterme.viewmodel.PlantViewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
-class PlantAdapter(private val longClickListener: PlantListener) :
-    ListAdapter<Plant, PlantAdapter.PlantViewHolder>(DiffCallback) {
+class PlantAdapter(viewModel: PlantViewModel, private val dataStore: DataStore, private val clickListener: (Plant) -> Unit) :
+    RecyclerView.Adapter<PlantAdapter.PlantViewHolder>() {
 
-    class PlantViewHolder(
-        private val binding: ListItemBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    var stateSwitch by Delegates.notNull<Boolean>()
+    private var plantsData: List<Plant> = viewModel.plants.value ?: emptyList()
 
-        fun bind(
-            longClickListener: PlantListener,
-            plant: Plant
-        ) {
-            binding.plant = plant
-            binding.longClickListner = longClickListener
-            binding.executePendingBindings()
-        }
-    }
 
-    companion object DiffCallback: DiffUtil.ItemCallback<Plant>() {
-        override fun areItemsTheSame(oldItem: Plant, newItem: Plant): Boolean {
-            return oldItem == newItem
-        }
 
-        override fun areContentsTheSame(oldItem: Plant, newItem: Plant): Boolean {
-            return oldItem.name == newItem.name
-        }
-
+    class PlantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var plantImage: ImageView = itemView.findViewById(R.id.PlantImage)
+        var plantName: TextView = itemView.findViewById(R.id.name)
+        var plantType: TextView = itemView.findViewById(R.id.type)
+        var plantDescription: TextView = itemView.findViewById(R.id.description)
+        var plantSchedule: TextView = itemView.findViewById(R.id.schedule)
+        var customTime: Button = itemView.findViewById(R.id.customTime)
+        var switch : Switch = itemView.findViewById(R.id.choiceNotification)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        return PlantViewHolder(
-            ListItemBinding.inflate(layoutInflater, parent, false)
-        )
+        val itemView = layoutInflater.inflate(R.layout.list_item, parent, false)
+        return PlantViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: PlantViewHolder, position: Int) {
-        val plant = getItem(position)
-        holder.bind(longClickListener, plant)
+        val plant = plantsData[position]
+
+        holder.plantName.text = plant.name
+        holder.plantType.text = plant.type
+        holder.plantDescription.text = plant.description
+        holder.plantSchedule.text = plant.schedule
+
+        holder.plantImage.load(plant.image) {
+            crossfade(true)
+            placeholder(R.drawable.loading)
+            error(R.drawable.pictures)
+        }
+
+        holder.customTime.setOnClickListener{
+            clickListener(plant)
+        }
+
+        holder.switch.setOnClickListener {
+            GlobalScope.launch {
+                dataStore.saveStateNotification(plant.name , holder.switch.isChecked)
+                stateSwitch = dataStore.returnSwitchState(plant.name)
+            }
+        }
     }
 
+    override fun getItemCount(): Int {
+        return plantsData.size
+    }
 
-}
-
-class PlantListener(val longClickListener: (plant: Plant) -> Boolean) {
-    fun onLongClick(plant: Plant) = longClickListener(plant)
+    fun setPlantsData(plants: List<Plant>) {
+        plantsData = plants
+        notifyDataSetChanged()
+    }
 }

@@ -21,74 +21,126 @@
 
     <data>
         <variable
-            name="longClickListner"
-            type="com.example.waterme.adapater.PlantListener" />
+            name="viewModel"
+            type="com.example.waterme.viewmodel.PlantViewModel" />
 
         <variable
-            name="plant"
-            type="com.example.waterme.model.Plant" />
+            name="adapter"
+            type="com.example.waterme.adapater.PlantAdapter" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/Plant"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:onLongClick="@{() -> longClickListner.onLongClick(plant)}"
+
         app:cardElevation="4dp"
-        app:cardCornerRadius="4dp" >
+        app:cardCornerRadius="4dp"
+        app:cardBackgroundColor="@color/material_dynamic_primary50"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp">
+            android:layout_margin="16dp"
+            >
+
+            <Switch
+                android:id="@+id/choiceNotification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remember me"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:enabled="@{adapter.stateSwitch}"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/PlantImage"
+                style="@style/ImageRoundedCustomStyle"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/choiceNotification"
+                tools:src="@drawable/plant_placeholder" />
 
             <TextView
                 android:id="@+id/name"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:text=""
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                android:text="@{plant.name}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/PlantImage"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 tools:text="Name" />
 
             <TextView
                 android:id="@+id/type"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary"
-                android:text="@{plant.type}"
+                android:textColor="@color/white"
+                android:text=""
+                android:textStyle="bold"
+                android:textAlignment="center"
                 app:layout_constraintTop_toBottomOf="@id/name"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/name"
+                app:layout_constraintEnd_toEndOf="@id/name"
                 tools:text="Type" />
 
             <TextView
                 android:id="@+id/description"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary"
-                android:text="@{plant.description}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textAlignment="center"
                 android:maxLines="2"
                 android:ellipsize="end"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
                 app:layout_constraintTop_toBottomOf="@id/type"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/type"
+                app:layout_constraintEnd_toEndOf="@id/type"
                 tools:text="Description" />
-            
+
             <TextView
                 android:id="@+id/schedule"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:text=""
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary"
-                android:text="@{@string/schedule(plant.schedule)}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/customTime"
+                app:layout_constraintStart_toStartOf="@id/description"
                 app:layout_constraintTop_toBottomOf="@id/description"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/customTime"
                 tools:text="Water daily" />
+
+            <Button
+                android:id="@+id/customTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:text="Custom time"
+                app:layout_constraintEnd_toEndOf="@+id/description"
+                app:layout_constraintStart_toEndOf="@id/schedule"
+                app:layout_constraintTop_toBottomOf="@id/description" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

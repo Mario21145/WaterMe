@@ -39,7 +39,7 @@ class ReminderDialogFragment(private val plantName: String) : DialogFragment() {
                     when (position) {
                         0 ->
                             viewModel
-                                .scheduleReminder(5, TimeUnit.SECONDS, plantName)
+                                .scheduleReminder(15, TimeUnit.MINUTES, plantName)
                         1 ->
                             viewModel
                                 .scheduleReminder(1, TimeUnit.DAYS, plantName)
