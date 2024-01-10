@@ -19,9 +19,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.waterme.adapater.PlantAdapter
 import com.example.waterme.adapater.PlantListener
+import com.example.waterme.model.Plant
 import com.example.waterme.ui.ReminderDialogFragment
 import com.example.waterme.viewmodel.PlantViewModel
 import com.example.waterme.viewmodel.PlantViewModelFactory
@@ -43,8 +48,14 @@ class MainActivity : AppCompatActivity() {
         })
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
-        val data = viewModel.plants
-        Log.d("Data" , "${data.value}")
-//        adapter.submitList(data)
+
+        viewModel.plants.observe(this, Observer {
+            val data = viewModel.plants.value
+            adapter.submitList(data)
+        })
+
+
+
+
     }
 }

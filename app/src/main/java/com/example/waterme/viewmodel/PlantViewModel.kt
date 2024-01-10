@@ -34,6 +34,12 @@ import java.util.concurrent.TimeUnit
 
 class PlantViewModel(application: Application): ViewModel() {
 
+enum class PlantsApiStatus{DONE , ERROR , LOADING , DEFAULT}
+
+    private var _status = MutableLiveData<PlantsApiStatus>().apply {
+        value = PlantsApiStatus.DEFAULT
+    }
+    val status: LiveData<PlantsApiStatus> = _status
 
     private val _plants = MutableLiveData<List<Plant>>().apply {
         listOf<Plant>()
@@ -41,15 +47,22 @@ class PlantViewModel(application: Application): ViewModel() {
     var plants : MutableLiveData<List<Plant>> = _plants
 
     fun fetchPlants() {
-       viewModelScope.launch{
-           val plantsResult = PlantApi.retrofitService.getPlantList()
-           _plants.postValue(listOf(plantsResult))
+       viewModelScope.launch {
+           while (_status.value != PlantsApiStatus.DONE) {
+               try {
+                   _plants.value = PlantApi.retrofitService.getPlantList().plants
+                   _status.value = PlantsApiStatus.DONE
+               } catch (e: Exception) {
+                   _status.value = PlantsApiStatus.ERROR
+                   _plants.value = listOf()
+               }
+           }
        }
     }
 
-
-
-
+    init {
+        fetchPlants()
+    }
 
     internal fun scheduleReminder(
         duration: Long,
