@@ -17,19 +17,17 @@ package com.example.waterme.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.datastore.preferences.core.Preferences
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.waterme.database.plant.PlantDao
 import com.example.waterme.model.Plant
 import com.example.waterme.network.PlantApi
 import com.example.waterme.repository.DataStore
@@ -39,8 +37,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import com.example.waterme.repository.dataStore
+import kotlinx.coroutines.async
 
-class PlantViewModel(application: Application): ViewModel() {
+class PlantViewModel(plantDao: PlantDao, application: Application): ViewModel() {
 
 enum class PlantsApiStatus{DONE , ERROR , DEFAULT}
 
@@ -54,10 +53,32 @@ enum class PlantsApiStatus{DONE , ERROR , DEFAULT}
 
     val dataStore = DataStore(application.dataStore)
 
+    lateinit var plantDao : PlantDao
+
+
     init {
         fetchPlants()
+
+
+
+
+        insertData()
     }
 
+
+    //Dao functions
+    fun insertData(){
+        viewModelScope.async(Dispatchers.IO) {
+            for (i in plants.value!!){
+                _plants.value?.let { plantDao.insertPlant(i.name , i.schedule , i.type , i.description , i.image , false )}
+            }
+        }
+    }
+
+
+
+
+    //fetch plants from github repository
     fun fetchPlants() {
        viewModelScope.launch {
            withContext(Dispatchers.IO) {
@@ -76,6 +97,9 @@ enum class PlantsApiStatus{DONE , ERROR , DEFAULT}
        }
     }
 
+
+
+    //Periodic Worker
     internal fun scheduleReminder(
         duration: Long,
         unit: TimeUnit,
@@ -101,20 +125,12 @@ enum class PlantsApiStatus{DONE , ERROR , DEFAULT}
 
     }
 
-
-//    fun setDataInDataStore(plantName : String , switch : Boolean){
-//        viewModelScope.launch {
-//            dataStore.saveStateNotification(plantName , switch)
-//            Log.d("Data", dataStore.returnData())
-//        }
-//    }
-
 }
 
-class PlantViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+class PlantViewModelFactory(private val plantDao: PlantDao , private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(PlantViewModel::class.java)) {
-            PlantViewModel(application) as T
+            PlantViewModel(plantDao , application) as T
         } else {
             throw IllegalArgumentException("Unknown ViewModel class")
         }

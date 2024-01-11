@@ -27,6 +27,10 @@
         <variable
             name="adapter"
             type="com.example.waterme.adapater.PlantAdapter" />
+
+        <variable
+            name="datastore"
+            type="com.example.waterme.repository.DataStore" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -53,7 +57,6 @@
                 android:text="Remember me"
                 android:textStyle="bold"
                 android:textColor="@color/white"
-                android:enabled="@{adapter.stateSwitch}"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 />
@@ -63,6 +66,7 @@
                 style="@style/ImageRoundedCustomStyle"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/choiceNotification"

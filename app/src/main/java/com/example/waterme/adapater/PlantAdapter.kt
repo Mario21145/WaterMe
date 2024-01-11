@@ -15,8 +15,11 @@ import com.example.waterme.R
 import com.example.waterme.model.Plant
 import com.example.waterme.repository.DataStore
 import com.example.waterme.viewmodel.PlantViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.properties.Delegates
 
 class PlantAdapter(viewModel: PlantViewModel, private val dataStore: DataStore, private val clickListener: (Plant) -> Unit) :
@@ -24,8 +27,6 @@ class PlantAdapter(viewModel: PlantViewModel, private val dataStore: DataStore, 
 
     var stateSwitch by Delegates.notNull<Boolean>()
     private var plantsData: List<Plant> = viewModel.plants.value ?: emptyList()
-
-
 
     class PlantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var plantImage: ImageView = itemView.findViewById(R.id.PlantImage)
@@ -62,10 +63,13 @@ class PlantAdapter(viewModel: PlantViewModel, private val dataStore: DataStore, 
         }
 
         holder.switch.setOnClickListener {
-            GlobalScope.launch {
-                dataStore.saveStateNotification(plant.name , holder.switch.isChecked)
-                stateSwitch = dataStore.returnSwitchState(plant.name)
-            }
+//            GlobalScope.launch(Dispatchers.IO) {
+//                Log.d("Data" , plant.name + " " + holder.switch.isChecked)
+//                withContext(Dispatchers.Main){
+//                    checkSwitch(holder.switch)
+//                }
+//                dataStore.saveStateNotification(plant.name , holder.switch.isChecked)
+//            }
         }
     }
 
@@ -73,8 +77,17 @@ class PlantAdapter(viewModel: PlantViewModel, private val dataStore: DataStore, 
         return plantsData.size
     }
 
+
+
+//    suspend fun checkSwitch(switch: Switch){
+//        switch.isActivated = dataStore.statePlantFlow.first()
+//    }
+
     fun setPlantsData(plants: List<Plant>) {
         plantsData = plants
         notifyDataSetChanged()
     }
+
+
+
 }
